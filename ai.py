@@ -1,3 +1,31 @@
+def board_to_fen(board, turn='w', castling='KQkq', ep='-', halfmove=0, fullmove=1):
+    # Converte o tabuleiro (matriz) para FEN (apenas posição, sem roque/EP precisos)
+    fen_rows = []
+    for row in board:
+        empty = 0
+        fen_row = ''
+        for piece in row:
+            if not piece:
+                empty += 1
+            else:
+                if empty:
+                    fen_row += str(empty)
+                    empty = 0
+                letter = piece[1]
+                if piece[0] == 'w':
+                    fen_row += letter.upper()
+                else:
+                    fen_row += letter.lower()
+        if empty:
+            fen_row += str(empty)
+        fen_rows.append(fen_row)
+    fen = '/'.join(fen_rows)
+    return f"{fen} {turn} {castling} {ep} {halfmove} {fullmove}"
+
+def get_stockfish_best_move(board, turn, stockfish_path, time_limit=0.2):
+    from stockfish_engine import stockfish_move
+    fen = board_to_fen(board, turn)
+    return stockfish_move(fen, time_limit=time_limit)
 
 import copy
 from chess_rules import get_piece_moves
@@ -51,11 +79,36 @@ def apply_move(board, move):
     board[start[0]][start[1]] = None
 
 def evaluate(board):
-    piece_values = {'P': 1, 'N': 3, 'B': 3, 'R': 5, 'Q': 9, 'K': 0}
+    piece_values = {'P': 1, 'N': 3.2, 'B': 3.3, 'R': 5.1, 'Q': 9.5, 'K': 0}
     value = 0
-    for row in board:
-        for piece in row:
+    mobility = 0
+    center_bonus = 0
+    king_safety = 0
+    center_squares = [(3,3),(3,4),(4,3),(4,4)]
+    for r, row in enumerate(board):
+        for c, piece in enumerate(row):
             if piece:
                 sign = 1 if piece[0] == 'w' else -1
+                # Valor material
                 value += sign * piece_values[piece[1]]
-    return value
+                # Bônus por controle do centro
+                if (r, c) in center_squares:
+                    center_bonus += sign * 0.2
+                # Segurança do rei (penaliza rei exposto)
+                if piece[1] == 'K':
+                    if (piece[0] == 'w' and r < 2) or (piece[0] == 'b' and r > 5):
+                        king_safety += sign * 0.3
+    # Mobilidade (número de jogadas possíveis)
+    from chess_rules import get_piece_moves
+    for color in ['w', 'b']:
+        moves = 0
+        for r in range(8):
+            for c in range(8):
+                piece = board[r][c]
+                if piece and piece[0] == color:
+                    moves += len(get_piece_moves(board, r, c))
+        if color == 'w':
+            mobility += 0.05 * moves
+        else:
+            mobility -= 0.05 * moves
+    return value + center_bonus + mobility + king_safety
