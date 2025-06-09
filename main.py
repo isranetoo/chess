@@ -71,6 +71,8 @@ elif modo == 'stockfish':
     import time
     board = chess.Board()
     selected = None
+    last_fen = None
+    stockfish_suggestion = None
     running = True
     while running:
         screen.fill((240, 217, 181))
@@ -99,10 +101,14 @@ elif modo == 'stockfish':
         title = font_letnum.render('Sugestão Stockfish:', True, (0,0,0))
         screen.blit(title, (650, 20))
         stockfish_path = r"C:/Users/Israel Neto/Desktop/chess/stockfish/stockfish-windows-x86-64-avx2.exe"
-        # Mostra jogada sugerida
+        # Só chama o Stockfish se o tabuleiro mudou
         if not board.is_game_over():
-            move = stockfish_move(board.fen(), time_limit=0.3)
-            move_str = str(move)
+            if last_fen != board.fen():
+                move = stockfish_move(board.fen(), time_limit=0.3)
+                stockfish_suggestion = move
+                last_fen = board.fen()
+            move = stockfish_suggestion
+            move_str = str(move) if move else ''
             piece_names = {'p': 'Peão', 'n': 'Cavalo', 'b': 'Bispo', 'r': 'Torre', 'q': 'Rainha', 'k': 'Rei'}
             if move is not None:
                 from_square = chess.parse_square(move_str[:2])
