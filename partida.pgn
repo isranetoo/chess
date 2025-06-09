@@ -1,0 +1,9 @@
+[Event "Partida com IA"]
+[Site "Local"]
+[Date "2025.06.09"]
+[Round "-"]
+[White "Jogador"]
+[Black "IA"]
+[Result "*"]
+
+1. d4 Na6 2. c3 Rb8 3. Nf3 Ra8 4. b4 b5 5. e3 Rb8 6. Bd3 Rb7 7. c4 Nxb4 8. xb5 Nf6 9. Bd2 Nxd3 10. Ke2 Rxb5 11. Kxd3 Bb7 12. Qa4 a6 13. Nc3 Rb2 14. Qa3 Rb6 15. Ne5 Bxg2 16. Qa5 d6 17. Na4 Rb5 18. Qxa6 Qb8 19. Nc6 Qb7 20. Rb1 Qxa6 21. Nb8 Qxa4 22. Rxb5 Qxb5 23. Nd7 Kxd7 24. f4 Qb2 25. Ba5 Qxa1 26. Bxc7 Kxc7 27. f5 Rg8 28. e4 Qxa2 29. e5 xe5 30. xe5 Nd7 31. e6 xe6 32. xe6 Nc5 33. Kd4 Nxe6 34. Ke5 Nd8

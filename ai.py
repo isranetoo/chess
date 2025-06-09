@@ -1,4 +1,6 @@
+
 import copy
+from chess_rules import get_piece_moves
 
 DIFFICULTY_LEVELS = {
     'Fácil': 1,
@@ -33,16 +35,14 @@ def minimax(board, depth, is_maximizing):
         return min_eval, best_move
 
 def get_all_moves(board, color):
-    # Simples: pega todas as peças e retorna movimentos para qualquer casa livre
+    # Usa movimentos reais de xadrez
     moves = []
     for r in range(8):
         for c in range(8):
             piece = board[r][c]
             if piece and piece[0] == color:
-                for r2 in range(8):
-                    for c2 in range(8):
-                        if board[r2][c2] is None or board[r2][c2][0] != color:
-                            moves.append(((r, c), (r2, c2)))
+                for move in get_piece_moves(board, r, c):
+                    moves.append(((r, c), move))
     return moves
 
 def apply_move(board, move):

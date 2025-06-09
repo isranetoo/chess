@@ -1,9 +1,11 @@
 import pygame
 from ai import minimax
+from chess_rules import get_piece_moves, is_in_check
 from pgn import move_to_pgn, pos_to_alg
 from utils import load_images
 
 class ChessGame:
+    check_alert_font = None
     def __init__(self, screen, ai_depth):
         self.screen = screen
         self.board = self.create_starting_board()
@@ -15,6 +17,9 @@ class ChessGame:
         self.move_number = 1
         self.images = load_images()
         self.game_over = False
+        if ChessGame.check_alert_font is None:
+            ChessGame.check_alert_font = pygame.font.SysFont(None, 48)
+        self.check_alert = False
 
     def create_starting_board(self):
         return [
@@ -31,6 +36,8 @@ class ChessGame:
     def run(self):
         clock = pygame.time.Clock()
         while True:
+            # Atualiza alerta de xeque
+            self.check_alert = is_in_check(self.board, self.turn)
             self.draw()
             if self.turn == 'b' and not self.game_over:
                 _, move = minimax(self.board, self.ai_depth, False)
@@ -70,11 +77,15 @@ class ChessGame:
                 piece = self.board[row][col]
                 if piece:
                     self.screen.blit(self.images[piece], (col*80, row*80))
+        # Alerta de xeque
+        if self.check_alert:
+            alert_text = ChessGame.check_alert_font.render('XEQUE!', True, (255,0,0))
+            self.screen.blit(alert_text, (320 - alert_text.get_width()//2, 10))
         pygame.display.flip()
 
     def get_valid_moves(self, row, col):
-        # TODO: implementar regras reais de movimentação
-        return [(r, c) for r in range(8) for c in range(8) if self.board[r][c] is None]
+        # Movimentos reais de xadrez
+        return get_piece_moves(self.board, row, col)
 
     def make_move(self, start, end):
         piece = self.board[start[0]][start[1]]
