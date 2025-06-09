@@ -218,25 +218,44 @@ class TrainingChessGame(ChessGame):
         colors = [(240,217,181), (181,136,99)]
         files = 'abcdefgh'
         ranks = '87654321'
+        # Orientação conforme cor do usuário
+        user_color = getattr(self, 'user_color', 'w')
+        if user_color == 'w':
+            board_rows = range(8)
+            board_cols = range(8)
+            draw_row = lambda r: r
+            draw_col = lambda c: c
+        else:
+            board_rows = range(7, -1, -1)
+            board_cols = range(7, -1, -1)
+            draw_row = lambda r: 7 - r
+            draw_col = lambda c: 7 - c
         # Tabuleiro
-        for row in range(8):
-            for col in range(8):
-                color = colors[(row+col)%2]
-                pygame.draw.rect(self.screen, color, (col*80, row*80, 80, 80))
+        for row in board_rows:
+            for col in board_cols:
+                color = colors[(draw_row(row)+draw_col(col))%2]
+                pygame.draw.rect(self.screen, color, (draw_col(col)*80, draw_row(row)*80, 80, 80))
                 if self.selected and (row, col) in self.valid_moves:
-                    pygame.draw.rect(self.screen, (0,255,0), (col*80, row*80, 80, 80), 3)
+                    pygame.draw.rect(self.screen, (0,255,0), (draw_col(col)*80, draw_row(row)*80, 80, 80), 3)
                 piece = self.board[row][col]
                 if piece:
-                    self.screen.blit(self.images[piece], (col*80, row*80))
+                    self.screen.blit(self.images[piece], (draw_col(col)*80, draw_row(row)*80))
         # Letras (a-h) abaixo
         font_letnum = pygame.font.SysFont(None, 24)
-        for i in range(8):
-            let = font_letnum.render(files[i], True, (0,0,0))
-            self.screen.blit(let, (i*80 + 40 - let.get_width()//2, 640-20))
-        # Números (1-8) à esquerda
-        for i in range(8):
-            num = font_letnum.render(ranks[i], True, (0,0,0))
-            self.screen.blit(num, (5, i*80 + 40 - num.get_height()//2))
+        if user_color == 'w':
+            for i in range(8):
+                let = font_letnum.render(files[i], True, (0,0,0))
+                self.screen.blit(let, (i*80 + 40 - let.get_width()//2, 640-20))
+            for i in range(8):
+                num = font_letnum.render(ranks[i], True, (0,0,0))
+                self.screen.blit(num, (5, i*80 + 40 - num.get_height()//2))
+        else:
+            for i in range(8):
+                let = font_letnum.render(files[7-i], True, (0,0,0))
+                self.screen.blit(let, (i*80 + 40 - let.get_width()//2, 640-20))
+            for i in range(8):
+                num = font_letnum.render(ranks[7-i], True, (0,0,0))
+                self.screen.blit(num, (5, i*80 + 40 - num.get_height()//2))
         # Sugestões
         pygame.draw.rect(self.screen, (220,220,220), (640, 0, 200, 640))
         title = self.suggestion_font.render('Melhores jogadas:', True, (0,0,0))
